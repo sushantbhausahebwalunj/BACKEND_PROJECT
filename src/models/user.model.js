@@ -29,9 +29,9 @@ const userSchema = mongoose.Schema(
       type: String,
       required: true,
     },
-    coverimage: {
+    coverImage: {
       type: String,
-      required: true,
+      
     },
     watchHistory: [
       {
