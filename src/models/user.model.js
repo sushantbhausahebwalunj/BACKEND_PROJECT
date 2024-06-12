@@ -1,6 +1,11 @@
 import mongoose from "mongoose";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import dotenv from "dotenv";
+
+dotenv.config({
+  path:"./.env"
+})
 
 const userSchema = mongoose.Schema(
   {
@@ -61,31 +66,38 @@ userSchema.methods.isPasswordCorrect = async function (password) {
   return await bcrypt.compare(password, this.password);
 };
 
-userSchema.methods.generateSecretToken = function () {
-  return jwt.sign(
-    {
-      _id: this._id,
-      email: this.email,
-      userName: this.userName,
-      fullName: this.fullName,
-    },
-    process.env.ACCESS_SECRET_TOKEN,
-    {
-      expiresIn: SECRET_TOKEN_EXPIRY,
-    }
-  );
+userSchema.methods.generateAccessToken = function () {
+  try {
+    return jwt.sign(
+      {
+        _id: this._id,
+        email: this.email,
+        userName: this.userName,
+        fullName: this.fullName,
+      },
+      process.env.ACCESS_SECRET_TOKEN,
+      {
+        expiresIn: process.env.SECRET_TOKEN_EXPIRY,
+      }
+    );
+  } catch (error) {
+    console.error("Error generating access token:", error);
+    throw error;
+  }
 };
 
-userSchema.methods.generateRefreshToken =function (){
-    return jwt.sign({
-        _id:this._id
-    },
-    process.env.REFRESH_SECRET_TOKEN,
-    {
-        expiresIn:REFRESH_TOKEN_EXPIRY
-    }
+userSchema.methods.generateRefreshToken = function () {
+  try {
+    return jwt.sign(
+      { _id: this._id },
+      process.env.REFRESH_SECRET_TOKEN,
+      { expiresIn: process.env.REFRESH_TOKEN_EXPIRY }
+    );
+  } catch (error) {
+    console.error("Error generating refresh token:", error);
+    throw error;
+  }
+};
 
-)
-}
 
 export const User = mongoose.model("User", userSchema);
