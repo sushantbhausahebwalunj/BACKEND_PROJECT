@@ -7,7 +7,7 @@ dotenv.config({
   path:"./.env"
 })
 
-const userSchema = mongoose.Schema(
+const userSchema = new mongoose.Schema(
   {
     userName: {
       type: String,
@@ -63,6 +63,9 @@ userSchema.pre("save", async function (next) {
 });
 
 userSchema.methods.isPasswordCorrect = async function (password) {
+  if (!password || !this.password) {
+    throw new Error('Password and hash are requireddddd');
+  }
   return await bcrypt.compare(password, this.password);
 };
 
